@@ -174,8 +174,5 @@ document.getElementById('downloadCV').addEventListener('click', function(e) {
 
 // 6. Form Submission Response Intercept
 document.getElementById('contactForm').addEventListener('submit', function(e) {
-    e.preventDefault();
     alert("Data packet transmitted successfully. Joshua will review and follow up shortly.");
-    this.reset();
 });
-
