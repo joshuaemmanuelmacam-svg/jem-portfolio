@@ -24,16 +24,33 @@ body {
     line-height: 1.6;
 }
 
-/* Page Loader */
+/* Page Loader - Branded with JEM. */
 .page-loader {
     position: fixed;
     inset: 0;
-    background: #000;
+    background: var(--bg-main);
     z-index: 9999;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: transform 0.8s cubic-bezier(0.85, 0, 0.15, 1);
+}
+
+.loader-logo {
+    font-weight: 800;
+    font-size: 3rem; /* Large scale for branding */
+    letter-spacing: -1px;
+    color: var(--text-primary);
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+.loader-logo span {
+    color: var(--neon-orange);
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.4; transform: scale(0.95); }
+    50% { opacity: 1; transform: scale(1.05); }
 }
 .loader-line {
     width: 150px;
@@ -228,9 +245,129 @@ nav {
 .marquee-item:hover { color: var(--neon-orange); transform: scale(1.05); }
 @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-/* GALLERY SLIDER */
-.gallery-container { display: flex; flex-direction: column; gap: 48px; }
-.gallery-card-large { display: grid; grid-template-columns: 1.2fr 1fr; overflow: hidden; min-height: 450px; }
+/* ========================================= */
+/* SLEEK EDITORIAL GALLERY GRID              */
+/* ========================================= */
+
+/* Styling for buttons to make them look interesting */
+.filter-nav {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 40px;
+}
+
+.filter-btn {
+    padding: 10px 25px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Hover effect */
+.filter-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    border-color: var(--neon-orange);
+}
+
+/* Active/Clicked effect */
+.filter-btn.active {
+    background: var(--neon-orange);
+    color: #fff;
+    box-shadow: 0 0 15px var(--neon-glow);
+}
+
+/* Ensure hidden galleries are truly hidden */
+.force-hide {
+    display: none !important;
+}
+
+.gallery-showcase {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.sleek-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    width: 100%;
+}
+
+/* The Base Card: Matches your screenshot layout */
+.sleek-card {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 4; /* Forces the tall, elegant rectangular look */
+    border-radius: 32px; /* Heavy, modern rounded corners */
+    overflow: hidden;
+    cursor: pointer;
+    background: #111;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    transition: var(--transition-dynamic);
+}
+
+.sleek-card .gallery-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(100%) brightness(0.8); /* Starts grayscale like the photo */
+    transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* The Interactive Viewer Hooks */
+.sleek-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px var(--neon-glow);
+    border: 1px solid rgba(255, 95, 31, 0.2); /* Subtle orange rim */
+}
+
+.sleek-card:hover .gallery-img {
+    filter: grayscale(0%) brightness(1.1); /* Bursts into full color */
+    transform: scale(1.08); /* Smooth inner zoom */
+}
+
+/* Hidden Overlay that slides up on hover */
+.card-overlay {
+    position: absolute;
+    bottom: -60px;
+    left: 0;
+    width: 100%;
+    padding: 60px 30px 30px;
+    background: linear-gradient(to top, rgba(4,4,4,0.98), transparent);
+    opacity: 0;
+    transition: all 0.4s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    pointer-events: none; /* Prevents text from blocking image clicks */
+}
+
+.sleek-card:hover .card-overlay {
+    bottom: 0;
+    opacity: 1;
+}
+
+.card-overlay h3 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+
+.card-overlay .project-tag {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--neon-orange);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
 
 .gallery-slider-wrapper {
     position: relative;
@@ -240,12 +377,7 @@ nav {
     min-height: 350px;
     background: #0c0c0c;
 }
-.slider-track {
-    display: flex;
-    width: 100%;
-    height: 100%;
-    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-}
+
 .gallery-img {
     width: 100%;
     height: 100%;
