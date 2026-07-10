@@ -294,20 +294,19 @@
             <h2 class="section-title">Secure <span>Signal</span></h2>
             <p>Have an upcoming system deployment or operational framework to build? Drop a line.</p>
         </div>
-        <div class="glass-card contact-container reveal-item">
-            <form id="contactForm">
+        <form id="contactForm" action="https://formspree.io/f/xkoldeqy" method="POST">
                 <div class="form-row">
                     <div class="form-group">
-                        <input type="text" id="name" placeholder=" " required>
+                        <input type="text" id="name" name="name" placeholder=" " required>
                         <label for="name">Name</label>
                     </div>
                     <div class="form-group">
-                        <input type="email" id="email" placeholder=" " required>
+                        <input type="email" id="email" name="email" placeholder=" " required>
                         <label for="email">Email</label>
                     </div>
                 </div>
                 <div class="form-group">
-                    <textarea id="message" rows="6" placeholder=" " required></textarea>
+                    <textarea id="message" name="message" rows="6" placeholder=" " required></textarea>
                     <label for="message">Project Blueprint Context</label>
                 </div>
                 <button type="submit" class="submit-btn">Send Message <i class="fa-solid fa-paper-plane"></i></button>
