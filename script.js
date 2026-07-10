@@ -174,5 +174,25 @@ document.getElementById('downloadCV').addEventListener('click', function(e) {
 
 // 6. Form Submission Response Intercept
 document.getElementById('contactForm').addEventListener('submit', function(e) {
-    alert("Data packet transmitted successfully. Joshua will review and follow up shortly.");
+    e.preventDefault(); // Keep this for manual handling
+
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries());
+
+    fetch('YOUR_ENDPOINT_URL', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data) // This turns it into the valid JSON object the server wants
+    })
+    .then(response => response.json())
+    .then(result => {
+        alert("Data packet transmitted successfully.");
+        this.reset();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert("There was an error sending your message.");
+    });
 });
