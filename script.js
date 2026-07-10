@@ -170,11 +170,36 @@ document.getElementById('downloadCV').addEventListener('click', function(e) {
     e.preventDefault();
 });
 
-
-
-// 6. Form Submission Response Intercept
-document.getElementById('contactForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    alert("Data packet transmitted successfully. Joshua will review and follow up shortly.");
-    this.reset();
+// 6. Form Submission Response Intercept (Updated for Formspree)
+document.getElementById('contactForm').addEventListener('submit', async function(e) {
+    e.preventDefault(); // Prevent standard redirect
+    
+    const form = this;
+    const button = form.querySelector('.submit-btn');
+    const originalText = button.innerHTML;
+    
+    // Change button text to show a loading state
+    button.innerHTML = 'Transmitting... <i class="fa-solid fa-spinner fa-spin"></i>';
+    
+    try {
+        const response = await fetch(form.action, {
+            method: form.method,
+            body: new FormData(form),
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            alert("Data packet transmitted successfully. Joshua will review and follow up shortly.");
+            form.reset(); // Clear the form fields
+        } else {
+            alert("Signal interrupted. There was a problem sending your message.");
+        }
+    } catch (error) {
+        alert("Network error. Please try again later.");
+    } finally {
+        // Reset the button back to its original state
+        button.innerHTML = originalText;
+    }
 });
