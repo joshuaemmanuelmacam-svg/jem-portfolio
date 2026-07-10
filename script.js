@@ -1,3 +1,27 @@
+// 0. GALLERY FILTER TOGGLE LOGIC
+window.addEventListener('DOMContentLoaded', () => {
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const galleries = document.querySelectorAll('.gallery-showcase');
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons and add to clicked
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            // Hide all galleries and show the matching one
+            const filter = button.getAttribute('data-filter');
+            galleries.forEach(gallery => {
+                if (gallery.getAttribute('data-category') === filter) {
+                    gallery.classList.remove('force-hide'); // Show the matching gallery
+                } else {
+                    gallery.classList.add('force-hide'); // Hide others
+                }
+            });
+        });
+    });
+});
+
 // 1. App Entry Transition Handler
 window.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
@@ -44,70 +68,54 @@ const sectionObserver = new IntersectionObserver((entries) => {
 }, sectionOptions);
 document.querySelectorAll(".reveal").forEach(sec => sectionObserver.observe(sec));
 
-// 4. MULTI-PHOTO CAROUSEL & LIGHTBOX CONTROLLER
-const projectImages = {}; // Global state to index project image sets
+// 4. SLEEK GALLERY LIGHTBOX CONTROLLER
+const projectImages = {}; 
 
-document.querySelectorAll('.gallery-card-large').forEach((card) => {
-    const projectId = card.getAttribute('data-project');
-    const track = card.querySelector('.slider-track');
-    const images = card.querySelectorAll('.gallery-img');
-    const prevBtn = card.querySelector('.slider-arrow.prev');
-    const nextBtn = card.querySelector('.slider-arrow.next');
-    const dotsContainer = card.querySelector('.slider-dots');
+document.querySelectorAll('.gallery-showcase').forEach((showcase) => {
+    const projectId = showcase.getAttribute('data-project');
+    const images = showcase.querySelectorAll('.gallery-img');
     
-    let currentIndex = 0;
-    
-    // Build array list mapping images per project for Lightbox consumption
-    projectImages[projectId] = Array.from(images).map(img => img.src);
+    if (projectId && images.length > 0) {
+        // Build the array mapping for the Lightbox UI
+        projectImages[projectId] = Array.from(images).map(img => img.src);
 
-    // Dynamic Dot Generation UI
-    images.forEach((_, idx) => {
-        const dot = document.createElement('div');
-        dot.classList.add('dot');
-        if (idx === 0) dot.classList.add('active');
-        dot.addEventListener('click', () => updateSlider(idx));
-        dotsContainer.appendChild(dot);
-    });
-
-    const dots = dotsContainer.querySelectorAll('.dot');
-
-    function updateSlider(index) {
-        currentIndex = index;
-        track.style.transform = `translateX(-${currentIndex * 100}%)`;
-        dots.forEach(d => d.classList.remove('active'));
-        dots[currentIndex].classList.add('active');
-    }
-
-    nextBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        let nextIndex = (currentIndex + 1) % images.length;
-        updateSlider(nextIndex);
-    });
-
-    prevBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        let prevIndex = (currentIndex - 1 + images.length) % images.length;
-        updateSlider(prevIndex);
-    });
-
-    // Lightbox Open Call Interceptor
-    images.forEach((img, imgIndex) => {
-        img.addEventListener('click', () => {
-            openLightbox(projectId, imgIndex);
+        // Attach click listeners to the entire sleek card
+        const cards = showcase.querySelectorAll('.sleek-card');
+        cards.forEach((card, imgIndex) => {
+            card.addEventListener('click', () => {
+                openLightbox(projectId, imgIndex);
+            });
         });
-    });
+    }
 });
 
-// Lightbox Core Engine Implementation
 const lightbox = document.getElementById('lightboxModal');
-const lightboxImg = document.getElementById('lightboxDisplayImg');
+const displayContainer = document.querySelector('.lightbox-content-container');
+const closeButton = document.querySelector('.lightbox-close');
 let currentLightboxProject = '';
 let currentLightboxIndex = 0;
 
 function openLightbox(projectId, index) {
     currentLightboxProject = projectId;
     currentLightboxIndex = index;
-    lightboxImg.src = projectImages[projectId][index];
+    const itemSrc = projectImages[projectId][index];
+    
+    displayContainer.innerHTML = '';
+    
+    if (itemSrc.endsWith('.mp4')) {
+        const video = document.createElement('video');
+        video.src = itemSrc;
+        video.controls = true;
+        video.autoplay = true;
+        video.id = 'lightboxDisplayImg';
+        displayContainer.appendChild(video);
+    } else {
+        const img = document.createElement('img');
+        img.src = itemSrc;
+        img.id = 'lightboxDisplayImg';
+        displayContainer.appendChild(img);
+    }
+
     lightbox.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
@@ -115,24 +123,33 @@ function openLightbox(projectId, index) {
 function closeLightbox() {
     lightbox.classList.remove('active');
     document.body.style.overflow = '';
+    // Optional: Stop video playback when closing
+    const video = displayContainer.querySelector('video');
+    if (video) {
+        video.pause();
+        video.src = ""; // Clears the video to stop background audio
+    }
+    displayContainer.innerHTML = ''; // Clean up
 }
 
-document.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
-lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+// Update the navigation logic to re-trigger openLightbox
+function updateLightboxContent() {
+    openLightbox(currentLightboxProject, currentLightboxIndex);
+}
 
 document.querySelector('.lightbox-next').addEventListener('click', () => {
     const list = projectImages[currentLightboxProject];
     currentLightboxIndex = (currentLightboxIndex + 1) % list.length;
-    lightboxImg.src = list[currentLightboxIndex];
+    updateLightboxContent();
 });
 
 document.querySelector('.lightbox-prev').addEventListener('click', () => {
     const list = projectImages[currentLightboxProject];
     currentLightboxIndex = (currentLightboxIndex - 1 + list.length) % list.length;
-    lightboxImg.src = list[currentLightboxIndex];
+    updateLightboxContent();
 });
 
-// Keyboard Mapping for Lightbox Escaped Operations
+
 window.addEventListener('keydown', (e) => {
     if (!lightbox.classList.contains('active')) return;
     if (e.key === 'Escape') closeLightbox();
@@ -140,20 +157,20 @@ window.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft') document.querySelector('.lightbox-prev').click();
 });
 
+document.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
+
+lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) {
+        closeLightbox();
+    }
+});
+
 // 5. Download CV Payload System
 document.getElementById('downloadCV').addEventListener('click', function(e) {
     e.preventDefault();
-    const mockResumeData = "JOSHUA EMMANUAL MACAM\nUI/UX Architect | Social Media Manager | Executive Operations Mapping";
-    const dataBlob = new Blob([mockResumeData], { type: "text/plain;charset=utf-8" });
-    const localUrl = URL.createObjectURL(dataBlob);
-    const virtualLinkNode = document.createElement('a');
-    virtualLinkNode.href = localUrl;
-    virtualLinkNode.download = "Joshua_Macam_Executive_CV.txt";
-    document.body.appendChild(virtualLinkNode);
-    virtualLinkNode.click();
-    document.body.removeChild(virtualLinkNode);
-    URL.revokeObjectURL(localUrl);
 });
+
+
 
 // 6. Form Submission Response Intercept
 document.getElementById('contactForm').addEventListener('submit', function(e) {
@@ -161,3 +178,4 @@ document.getElementById('contactForm').addEventListener('submit', function(e) {
     alert("Data packet transmitted successfully. Joshua will review and follow up shortly.");
     this.reset();
 });
+
